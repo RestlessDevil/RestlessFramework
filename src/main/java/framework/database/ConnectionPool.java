@@ -12,30 +12,26 @@ import java.util.logging.Logger;
 
 public final class ConnectionPool implements Monitorable {
 
-    private static ConnectionPool instance = null;
+    private static final ConnectionPool instance = new ConnectionPool();
+
     private static final Logger LOG = Logger.getLogger(ConnectionPool.class.getName());
 
-    private final List<Connection> pool;
-    private final List<Connection> taken;
+    private final List<Connection> pool = new LinkedList<>();
+    private final List<Connection> taken = new LinkedList<>();
 
     private final String poolLabel = "Connection Pool";
     private final boolean vital = true;
     private Status status;
 
     private ConnectionPool() {
-        taken = new LinkedList<>();
-        pool = new LinkedList<>();
         this.status = new Status(State.uninitialized, null);
     }
 
     public static ConnectionPool getInstance() {
-        if (instance == null) {
-            instance = new ConnectionPool();
-        }
         return instance;
     }
 
-    private boolean validate(Connection jdbcConnection) {
+    private boolean validate(Connection jdbcConnection) {   // Make sure the connection is not killed from the server side
         try {
             PreparedStatement stmt = jdbcConnection.prepareStatement("SELECT 1;");
             stmt.executeQuery();
@@ -139,7 +135,7 @@ public final class ConnectionPool implements Monitorable {
     }
 
     public synchronized void returnConnection(Connection jdbcConnection) {
-        if (jdbcConnection != null) {
+        if (jdbcConnection != null) {   // A safeguard against null connections that might end up "returned"
             taken.remove(jdbcConnection);
             pool.add(jdbcConnection);
         }
