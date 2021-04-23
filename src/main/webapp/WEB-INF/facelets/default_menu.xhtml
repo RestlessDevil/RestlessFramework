@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <body>
+        <ui:composition>
+
+
+            <li class="#{page == 'index' ? 'active' : null}">
+                <p:link outcome="index">
+                    <i class="fa fa-fw fa-flag"/>
+                    Index
+                </p:link>
+            </li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Services</a></li>            
+            <li class="#{page == 'dashboard' ? 'active' : null}">
+                <p:link outcome="dashboard">
+                    <c:choose>
+                        <c:when test="#{dashboard.operational}">
+                            <i class="fa fa-fw fa-tachometer"/>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="fa fa-fw fa-warning"/>
+                        </c:otherwise>
+                    </c:choose>
+                    Dashboard
+                </p:link>
+            </li>
+        </ui:composition>
+    </body>
+</html>

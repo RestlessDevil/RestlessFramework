@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:body>
+        <ui:composition template="/WEB-INF/facelets/template.xhtml">
+            <ui:param name="page" value="index" />
+
+            <ui:define name="title">RestlessFramework - Page Title</ui:define>
+
+            <ui:define name="page_icon"><i class="fa fa-fw fa-flag"/></ui:define>
+
+            <ui:define name="sidebar">
+                <div id="sidebar" class="col-lg-2">
+                    <h:form>
+                        <ul class="nav nav-pills nav-stacked">
+                            <li class="active"><a href="#">Item 1</a></li>
+                            <li><a href="#">Item 2</a></li>
+                            <li><a href="#">Item 3</a></li>
+
+                            <li><p:commandLink update="growl" value="Command 1" action="#{test.testFunction1()}"/></li>
+                            <li><p:commandLink update="growl" value="Command 2" action="#{test.testFunction2()}"/></li>
+                            <li><p:commandLink update="growl" value="Command 3" action="#{test.testFunction3()}"/></li>
+                        </ul>                        
+                    </h:form>
+                </div>
+            </ui:define>
+
+
+            <ui:define name="content">
+                <p>"A good plan violently executed now is better than a perfect plan executed next week."<br/>General George S. Patton</p>
+            </ui:define>
+
+        </ui:composition>
+    </h:body>
+</html>
+
