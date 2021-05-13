@@ -38,11 +38,11 @@ public final class Dashboard implements Serializable {
         for (Monitorable monitorable : monitorables) {
             try {
                 monitorable.initialize();
-            } catch (Exception ex) {
+            } catch (Exception ex) {    // No exceptions allowed beyond this point
                 Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, ex.getMessage());
                 break;
             }
-            if (monitorable.getStatus().getState() == State.malfunction && monitorable.isVital()) {
+            if (monitorable.getStatus().getState() != State.OPERATIONAL && monitorable.isVital()) {
                 break;
             }
         }
@@ -59,7 +59,7 @@ public final class Dashboard implements Serializable {
     }
 
     public List<Monitorable> getMonitorables() {
-        return monitorables;
+        return Collections.unmodifiableList(monitorables);
     }
 
     public boolean isOperational() {

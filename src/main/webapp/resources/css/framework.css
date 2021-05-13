@@ -92,15 +92,18 @@ body {
     margin-bottom:10px;
 }
 
-.uninitialized {
+.UNINITIALIZED {
     background: #eeeeee
 }
 
-.operational {
+.OPERATIONAL {
     background: #d5ffd5;
 }
 
-.malfunction {
+.MALFUNCTION {
     background: #f7c3c3;
 }
 
+.BUSY {
+    background: #ff9;
+}

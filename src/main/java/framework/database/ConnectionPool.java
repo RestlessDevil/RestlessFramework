@@ -5,6 +5,7 @@ import framework.diagnostics.Status;
 import framework.diagnostics.Status.State;
 import framework.settings.DatabaseSettings;
 import java.sql.*;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -24,7 +25,7 @@ public final class ConnectionPool implements Monitorable {
     private Status status;
 
     private ConnectionPool() {
-        this.status = new Status(State.uninitialized, null);
+        this.status = new Status(State.UNINITIALIZED, null);
     }
 
     public static ConnectionPool getInstance() {
@@ -36,7 +37,7 @@ public final class ConnectionPool implements Monitorable {
             PreparedStatement stmt = jdbcConnection.prepareStatement("SELECT 1;");
             stmt.executeQuery();
             return true;
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             LOG.log(Level.SEVERE, null, ex);
             return false;
         }
@@ -52,12 +53,12 @@ public final class ConnectionPool implements Monitorable {
                 for (int i = 0; i < poolSize; i++) {
                     pool.add(DriverManager.getConnection(settings.getAddress(), settings.getUser(), settings.getPassword()));
                 }
-                status = new Status(State.operational, null);
+                status = new Status(State.OPERATIONAL);
             } else {
-                status = new Status(State.uninitialized, null);
+                status = new Status(State.UNINITIALIZED);
             }
-        } catch (Exception ex) {
-            status = new Status(State.malfunction, ex);
+        } catch (ClassNotFoundException | SQLException ex) {
+            status = new Status(State.MALFUNCTION, ex);
             LOG.log(Level.SEVERE, null, ex);
         }
     }
@@ -65,20 +66,31 @@ public final class ConnectionPool implements Monitorable {
     @Override
     public synchronized void shutdown() {
         try {
+            // Closing all connections in the pool
             for (Connection connection : pool) {
                 connection.close();
             }
             pool.clear();
 
+            // Closing all of the taken connections
             for (Connection connection : taken) {
                 connection.close();
             }
             taken.clear();
-        } catch (Exception ex) {
+
+            // Deregistering JDBC
+            Enumeration<Driver> drivers = DriverManager.getDrivers();
+            while (drivers.hasMoreElements()) {
+                Driver driver = drivers.nextElement();
+                DriverManager.deregisterDriver(driver);
+            }
+
+        } catch (SQLException ex) {
             LOG.log(Level.WARNING, null, ex);
+        } finally {
+            status = new Status(State.UNINITIALIZED);
+            notifyAll();
         }
-        status = new Status(State.uninitialized, null);
-        notifyAll();
     }
 
     @Override
@@ -113,21 +125,22 @@ public final class ConnectionPool implements Monitorable {
         }
 
         Connection jdbcConnection = pool.remove(0);
-        taken.add(jdbcConnection);
 
         if (validate(jdbcConnection)) {
+            taken.add(jdbcConnection);
             return jdbcConnection;
         } else {
             try {
                 jdbcConnection.close();
-            } catch (Exception ex) {
+            } catch (SQLException ex) {
             }
             try {
                 DatabaseSettings settings = DatabaseSettings.getInstance();
                 jdbcConnection = DriverManager.getConnection(settings.getAddress(), settings.getUser(), settings.getPassword());
-            } catch (Exception ex) {
+                taken.add(jdbcConnection);
+            } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, null, ex);
-                this.status = new Status(State.malfunction, ex);
+                this.status = new Status(State.MALFUNCTION, ex);
             }
         }
 

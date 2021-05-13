@@ -13,16 +13,12 @@ class PropertiesHandler {
     private static final Logger LOG = Logger.getLogger(PropertiesHandler.class.getName());
 
     private final String prefix; // applicationName.module.param || applicationName.param || global.module.param
-    private final String localPath;
-    private final String overridePath;
 
     private final Properties localProperties;
     private final Properties overrideProperties;
 
     public PropertiesHandler(String prefix, String localPath, String overridePath) throws IOException {
         this.prefix = prefix;
-        this.localPath = localPath;
-        this.overridePath = overridePath;
 
         localProperties = new Properties();
         overrideProperties = new Properties();
@@ -35,9 +31,9 @@ class PropertiesHandler {
         //Load Override
         try (InputStream istream = new FileInputStream(new File(overridePath))) {
             overrideProperties.load(istream);
-            LOG.log(Level.INFO, "Overriding " + prefix + ":" + localPath + " -> " + overridePath);
-        } catch (Exception ex) {
-            LOG.log(Level.INFO, "Failed to load override file (" + prefix + ").");
+            LOG.log(Level.INFO, "Overriding {0}:{1} -> {2}", new Object[]{prefix, localPath, overridePath});
+        } catch (IOException ex) {
+            LOG.log(Level.INFO, "Failed to load override file ({0}).", prefix);
         }
     }
 
@@ -57,7 +53,7 @@ class PropertiesHandler {
         }
         String unprefixedLocalValue = localProperties.getProperty(paramName);
 
-        String param = null;
+        String param;
 
         if (specificOverride != null) {
             param = specificOverride;

@@ -1,13 +1,18 @@
 package framework.diagnostics;
 
-public final class Status {
+public class Status {
 
     public enum State {
-        uninitialized, operational, malfunction, busy
+        UNINITIALIZED, OPERATIONAL, MALFUNCTION, BUSY
     }
 
     private final State state;
     private final Exception exception;
+
+    public Status(State state) {
+        this.state = state;
+        this.exception = null;
+    }
 
     public Status(State state, Exception exception) {
         this.state = state;
@@ -23,15 +28,19 @@ public final class Status {
     }
 
     public boolean isOperational() {
-        return (state == State.operational);
+        return (state == State.OPERATIONAL || state == State.BUSY);
+    }
+
+    public boolean isBusy() {
+        return (state == State.BUSY);
     }
 
     public boolean isMalfunction() {
-        return (state == State.malfunction);
+        return (state == State.MALFUNCTION);
     }
 
     public boolean isUninitialized() {
-        return (state == State.uninitialized);
+        return (state == State.UNINITIALIZED);
     }
 
 }

@@ -38,6 +38,13 @@ public final class Cache {
         }
     }
 
+    public synchronized void remove(Object id) {
+        if (map.containsKey(id)) {
+            Cacheable object = map.remove(id);
+            accessOrder.remove(object);
+        }
+    }
+
     public synchronized void clear() {
         map.clear();
         accessOrder.clear();

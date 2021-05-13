@@ -24,7 +24,7 @@ abstract class Settings implements Monitorable {
         this.label = label;
         this.vital = vital;
 
-        status = new Status(State.uninitialized, null);
+        status = new Status(State.UNINITIALIZED);
     }
 
     protected abstract void load() throws IOException; // Loading and validation of parameters
@@ -33,16 +33,16 @@ abstract class Settings implements Monitorable {
     public synchronized void initialize() {
         try {
             load();
-            status = new Status(State.operational, null);
-        } catch (Exception ex) {
-            status = new Status(State.malfunction, ex);
+            status = new Status(State.OPERATIONAL);
+        } catch (IOException ex) {
+            status = new Status(State.MALFUNCTION);
             LOG.log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
     public void shutdown() {
-        status = new Status(State.uninitialized, null);
+        status = new Status(State.UNINITIALIZED, null);
     }
 
     @Override
