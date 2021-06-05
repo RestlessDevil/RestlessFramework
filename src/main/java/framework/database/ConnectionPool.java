@@ -1,6 +1,6 @@
 package framework.database;
 
-import framework.diagnostics.Monitorable;
+import framework.diagnostics.MonitoredComponent;
 import framework.diagnostics.Status;
 import framework.diagnostics.Status.State;
 import framework.settings.DatabaseSettings;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class ConnectionPool implements Monitorable {
+public final class ConnectionPool extends MonitoredComponent {
 
     private static final ConnectionPool instance = new ConnectionPool();
 
@@ -20,11 +20,8 @@ public final class ConnectionPool implements Monitorable {
     private final List<Connection> pool = new LinkedList<>();
     private final List<Connection> taken = new LinkedList<>();
 
-    private final String poolLabel = "Connection Pool";
-    private final boolean vital = true;
-    private Status status;
-
     private ConnectionPool() {
+        super("Connection Pool", true);
         this.status = new Status(State.UNINITIALIZED, null);
     }
 
@@ -78,13 +75,6 @@ public final class ConnectionPool implements Monitorable {
             }
             taken.clear();
 
-            // Deregistering JDBC
-            Enumeration<Driver> drivers = DriverManager.getDrivers();
-            while (drivers.hasMoreElements()) {
-                Driver driver = drivers.nextElement();
-                DriverManager.deregisterDriver(driver);
-            }
-
         } catch (SQLException ex) {
             LOG.log(Level.WARNING, null, ex);
         } finally {
@@ -94,28 +84,22 @@ public final class ConnectionPool implements Monitorable {
     }
 
     @Override
-    public synchronized void reload() {
+    public synchronized void permanentShutdown() {
         shutdown();
-        initialize();
-        notifyAll();
+
+        // Deregistering JDBC
+        try {
+            Enumeration<Driver> drivers = DriverManager.getDrivers();
+            while (drivers.hasMoreElements()) {
+                Driver driver = drivers.nextElement();
+                DriverManager.deregisterDriver(driver);
+            }
+        } catch (SQLException ex) {
+            LOG.log(Level.WARNING, null, ex);
+        }
     }
 
-    @Override
-    public Status getStatus() {
-        return status;
-    }
-
-    @Override
-    public String getLabel() {
-        return poolLabel;
-    }
-
-    @Override
-    public boolean isVital() {
-        return vital;
-    }
-
-    public int getAvailable() {
+    public synchronized int getAvailable() {
         return pool.size();
     }
 

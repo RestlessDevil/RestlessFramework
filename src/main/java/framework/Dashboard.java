@@ -20,6 +20,8 @@ import javax.faces.bean.ManagedBean;
 @ApplicationScoped
 public final class Dashboard implements Serializable {
 
+    private static final Logger LOG = Logger.getLogger(Dashboard.class.getName());
+
     private final List<Monitorable> monitorables;
 
     public Dashboard() {
@@ -39,7 +41,8 @@ public final class Dashboard implements Serializable {
             try {
                 monitorable.initialize();
             } catch (Exception ex) {    // No exceptions allowed beyond this point
-                Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, ex.getMessage());
+                monitorable.declareMalfunction(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
                 break;
             }
             if (monitorable.getStatus().getState() != State.OPERATIONAL && monitorable.isVital()) {
@@ -53,8 +56,8 @@ public final class Dashboard implements Serializable {
         ArrayList<Monitorable> reversed = new ArrayList<>();
         reversed.addAll(monitorables);
         Collections.reverse(reversed);
-        for (Monitorable m : reversed) {
-            m.shutdown();
+        for (Monitorable monitorable : reversed) {
+            monitorable.permanentShutdown();
         }
     }
 

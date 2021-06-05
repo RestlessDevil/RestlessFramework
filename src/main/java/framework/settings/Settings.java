@@ -1,30 +1,23 @@
 package framework.settings;
 
-import framework.diagnostics.Monitorable;
+import framework.diagnostics.MonitoredComponent;
 import framework.diagnostics.Status;
 import framework.diagnostics.Status.State;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-abstract class Settings implements Monitorable {
+abstract class Settings extends MonitoredComponent {
 
     private static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
     final String prefix;
     final String path;
-    final String label;
-    final boolean vital;
-
-    private Status status;
 
     public Settings(String prefix, String path, String label, boolean vital) {
+        super(label, vital);
         this.prefix = prefix;
         this.path = path;
-        this.label = label;
-        this.vital = vital;
-
-        status = new Status(State.UNINITIALIZED);
     }
 
     protected abstract void load() throws IOException; // Loading and validation of parameters
@@ -38,30 +31,5 @@ abstract class Settings implements Monitorable {
             status = new Status(State.MALFUNCTION);
             LOG.log(Level.SEVERE, null, ex);
         }
-    }
-
-    @Override
-    public void shutdown() {
-        status = new Status(State.UNINITIALIZED, null);
-    }
-
-    @Override
-    public synchronized void reload() {
-        initialize();
-    }
-
-    @Override
-    public final Status getStatus() {
-        return status;
-    }
-
-    @Override
-    public final String getLabel() {
-        return label;
-    }
-
-    @Override
-    public final boolean isVital() {
-        return vital;
     }
 }
