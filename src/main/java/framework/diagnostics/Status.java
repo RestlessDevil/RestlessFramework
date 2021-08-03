@@ -3,7 +3,7 @@ package framework.diagnostics;
 public class Status {
 
     public enum State {
-        UNINITIALIZED, OPERATIONAL, MALFUNCTION, BUSY
+        UNINITIALIZED, OPERATIONAL, MALFUNCTION, BUSY, SHUTDOWNFAILED
     }
 
     private final State state;

@@ -1,6 +1,5 @@
 package framework.settings;
 
-import framework.diagnostics.Status;
 import java.io.IOException;
 
 public final class DatabaseSettings extends Settings {
@@ -13,8 +12,6 @@ public final class DatabaseSettings extends Settings {
     private String user;
     private String password;
     private int poolSize;
-
-    private Status status;
 
     private DatabaseSettings() {
         super("database", "/config/configuration.properties", "Database Settings", true);

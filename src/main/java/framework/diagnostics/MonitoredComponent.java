@@ -22,12 +22,12 @@ public abstract class MonitoredComponent implements Monitorable {
     }
 
     @Override
-    public void shutdown() {    // Override if there is something to be done besides changing the status.
+    public synchronized void shutdown() {    // Override if there is something to be done besides changing the status.
         status = new Status(State.UNINITIALIZED);
     }
 
     @Override
-    public void permanentShutdown() {   // Override if there are some special ContextDestroyed procedures to be done.
+    public synchronized void permanentShutdown() {   // Override if there are some special ContextDestroyed procedures to be done.
         shutdown();
     }
 

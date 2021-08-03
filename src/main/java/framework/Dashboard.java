@@ -57,7 +57,12 @@ public final class Dashboard implements Serializable {
         reversed.addAll(monitorables);
         Collections.reverse(reversed);
         for (Monitorable monitorable : reversed) {
-            monitorable.permanentShutdown();
+            try {
+                monitorable.permanentShutdown();
+            } catch (Exception ex) {
+                monitorable.declareMalfunction(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
+            }
         }
     }
 

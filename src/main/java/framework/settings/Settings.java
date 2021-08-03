@@ -20,14 +20,14 @@ abstract class Settings extends MonitoredComponent {
         this.path = path;
     }
 
-    protected abstract void load() throws IOException; // Loading and validation of parameters
+    protected abstract void load() throws IOException, SettingsException; // Loading and validation of parameters
 
     @Override
     public synchronized void initialize() {
         try {
             load();
             status = new Status(State.OPERATIONAL);
-        } catch (IOException ex) {
+        } catch (IOException | SettingsException ex) {
             status = new Status(State.MALFUNCTION);
             LOG.log(Level.SEVERE, null, ex);
         }
