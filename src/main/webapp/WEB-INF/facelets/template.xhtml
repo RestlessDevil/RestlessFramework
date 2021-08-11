@@ -38,9 +38,7 @@
                     </button>
                     <!-- TODO: Replace with your app logo -->
                     <div id="logo" class="navbar-brand">
-                        <h:link class="logo-text"  outcome="index">
-                            RestlessFramework
-                        </h:link>
+                        <h:link class="logo-text"  outcome="index">RestlessFramework</h:link>
                     </div>
                 </div>
                 <div class="collapse navbar-collapse" id="collapsable-navbar">
@@ -66,7 +64,9 @@
 
                 <div id="content" class="#{no_sidebar ? 'col-lg-12' : 'col-lg-10'}">
                     <div class="page-title"><ui:insert name="title"/><ui:insert name="page_icon"/></div>
-                    <ui:insert name="content"/>
+                    <ui:insert name="content">
+                        <ui:include src="content.xhtml"/>
+                    </ui:insert>
                 </div>
             </div>
             <ui:insert name="footer">

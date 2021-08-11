@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -14,21 +10,25 @@ and open the template in the editor.
     <body>
         <ui:composition>
 
-            <ui:insert name="regular_content">
-
-            </ui:insert>
-
-            <ui:insert name="not_authorized">
-                <c:if test="#{!user.authenticated}">
-                    <h3><span class="fa fa-fw fa-lock"/> Access Denied!</h3>
-                </c:if>                
-            </ui:insert>
-
-            <ui:insert name="malfunction">
-                <c:if test="#{!dashboard.operational}">
-                    <h3><span class="fa fa-fw fa-warning"/> Malfunction!</h3>
-                </c:if>
-            </ui:insert>
+            <c:choose>
+                <c:when test="#{authorized}">   <!-- Authorized -->
+                    <c:choose>
+                        <c:when test="#{dashboard.operational}">    <!-- Everything works, display the regular content -->
+                            <ui:insert name="regular_content"/>
+                        </c:when>
+                        <c:otherwise>
+                            <ui:insert name="malfunction">  <!-- Malfunction State -->
+                                <h3><span class="fa fa-fw fa-warning"/> Malfunction!</h3>
+                            </ui:insert>
+                        </c:otherwise>
+                    </c:choose>
+                </c:when>
+                <c:otherwise>
+                    <ui:insert name="not_authorized">   <!-- Not Authorized -->
+                        <h3><span class="fa fa-fw fa-lock"/> Access Denied!</h3>
+                    </ui:insert>
+                </c:otherwise>
+            </c:choose>
         </ui:composition>
     </body>
 </html>

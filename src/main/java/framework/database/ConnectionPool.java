@@ -22,7 +22,7 @@ public final class ConnectionPool extends MonitoredComponent {
 
     private ConnectionPool() {
         super("Connection Pool", true);
-        this.status = new Status(State.UNINITIALIZED, null);
+        status = new Status(State.UNINITIALIZED, null);
     }
 
     public static ConnectionPool getInstance() {
@@ -124,7 +124,7 @@ public final class ConnectionPool extends MonitoredComponent {
                 taken.add(jdbcConnection);
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, null, ex);
-                this.status = new Status(State.MALFUNCTION, ex);
+                status = new Status(State.MALFUNCTION, ex);
             }
         }
 
@@ -133,8 +133,15 @@ public final class ConnectionPool extends MonitoredComponent {
 
     public synchronized void returnConnection(Connection jdbcConnection) {
         if (jdbcConnection != null) {   // A safeguard against null connections that might end up "returned"
-            taken.remove(jdbcConnection);
-            pool.add(jdbcConnection);
+            try {
+                jdbcConnection.setAutoCommit(true); // Making sure all transactions are committed
+            } catch (SQLException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+                status = new Status(State.MALFUNCTION, ex);    // Something is wrong with this database
+            } finally {
+                taken.remove(jdbcConnection);
+                pool.add(jdbcConnection);
+            }
         }
         notifyAll();
     }
