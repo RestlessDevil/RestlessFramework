@@ -22,14 +22,27 @@ abstract class Settings extends MonitoredComponent {
 
     protected abstract void load() throws IOException, SettingsException; // Loading and validation of parameters
 
+    protected abstract void shutdownProcedure() throws SettingsException;    // Cleaning up
+
     @Override
     public synchronized void initialize() {
         try {
             load();
             status = new Status(State.OPERATIONAL);
         } catch (IOException | SettingsException ex) {
-            status = new Status(State.MALFUNCTION);
+            status = new Status(State.MALFUNCTION, ex);
+            LOG.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public synchronized void shutdown() {
+        try {
+            shutdownProcedure();
+        } catch (SettingsException ex) {
+            status = new Status(State.MALFUNCTION, ex);
             LOG.log(Level.SEVERE, null, ex);
         }
     }
 }
+
